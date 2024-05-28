@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class Veiculo
 {
+    public int Id { get; set; }
     public string Placa { get; set; }
     public DateTime HoraEntrada { get; set; }
 }
@@ -10,53 +11,92 @@ public class Veiculo
 public class Estacionamento
 {
     private List<Veiculo> veiculosEstacionados = new List<Veiculo>();
+    private int proximoId = 1;
+    private const int LimiteCarros = 7;
 
     public void AdicionarVeiculo(string placa)
     {
-        veiculosEstacionados.Add(new Veiculo { Placa = placa, HoraEntrada = DateTime.Now });
-        Console.WriteLine($"Veículo {placa} adicionado com sucesso.");
+        if (veiculosEstacionados.Count >= LimiteCarros)
+        {
+            Console.WriteLine("Limite de carros atingido. Nao e possivel adicionar mais veigit brculos.");
+            return;
+        }
+
+        veiculosEstacionados.Add(new Veiculo { Id = proximoId, Placa = placa, HoraEntrada = DateTime.Now });
+        Console.WriteLine($"Veiculo {placa} (ID: {proximoId}) adicionado com sucesso.");
+        proximoId++;
     }
 
-    public void RemoverVeiculo(string placa)
+    public void RemoverVeiculo(int id)
     {
-        var veiculo = veiculosEstacionados.Find(v => v.Placa == placa);
+        var veiculo = veiculosEstacionados.Find(v => v.Id == id);
         if (veiculo != null)
         {
             veiculosEstacionados.Remove(veiculo);
-            var duracao = DateTime.Now - veiculo.HoraEntrada;
-            var valorCobrado = CalcularValorCobrado(duracao);
-            Console.WriteLine($"Veículo {placa} removido. Valor cobrado: {valorCobrado:C}");
+            Console.WriteLine($"Veiculo (ID: {id}) removido.");
         }
         else
         {
-            Console.WriteLine("Veículo não encontrado.");
+            Console.WriteLine("Veiculo nao encontrado.");
         }
     }
 
     public void ListarVeiculos()
     {
-        Console.WriteLine("Veículos estacionados:");
+        Console.WriteLine("Veiculos estacionados:");
         foreach (var veiculo in veiculosEstacionados)
         {
-            Console.WriteLine($"- {veiculo.Placa}");
+            Console.WriteLine($"- ID: {veiculo.Id}, Placa: {veiculo.Placa}");
         }
-    }
-
-    private decimal CalcularValorCobrado(TimeSpan duracao)
-    {
-        // Implemente a lógica para calcular o valor cobrado com base na duração
-        // Exemplo: valor fixo por hora ou tarifa variável
-        return 0m;
     }
 }
 
-class Estacionamento
+class Program
 {
     static void Main()
     {
         var estacionamento = new Estacionamento();
-        estacionamento.AdicionarVeiculo("ABC123");
-        estacionamento.ListarVeiculos();
-        estacionamento.RemoverVeiculo("ABC123");
+
+        while (true)
+        {
+            Console.WriteLine("\nEscolha uma opcao:");
+            Console.WriteLine("1. Adicionar veiculo");
+            Console.WriteLine("2. Listar veiculos");
+            Console.WriteLine("3. Remover veiculo por ID");
+            Console.WriteLine("0. Sair");
+
+            var opcao = Console.ReadLine();
+
+            switch (opcao)
+            {
+                case "1":
+                    Console.Write("Digite a placa do veiculo: ");
+                    var placa = Console.ReadLine();
+                    estacionamento.AdicionarVeiculo(placa);
+                    break;
+                case "2":
+                    estacionamento.ListarVeiculos();
+                    break;
+                case "3":
+                    Console.Write("Digite o ID do veiculo a ser removido: ");
+                    if (int.TryParse(Console.ReadLine(), out int idRemover))
+                    {
+                        estacionamento.RemoverVeiculo(idRemover);
+                    }
+                    else
+                    {
+                        Console.WriteLine("ID invalido. Tente novamente.");
+                    }
+                    break;
+                case "0":
+                    return;
+                default:
+                    Console.WriteLine("Opcao invalida. Tente novamente.");
+                    break;
+            }
+        }
     }
 }
+
+
+
